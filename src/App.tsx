@@ -129,7 +129,15 @@ export function App() {
 
   return (
     <AppShell theme={theme}>
-      <TopBar healthStatus={healthQuery.data?.status} theme={theme} onToggleTheme={toggleTheme} />
+      <TopBar
+        healthStatus={healthQuery.data?.status}
+        priceButtonMode={priceButtonMode}
+        priceFormat={priceFormat}
+        theme={theme}
+        onSelectPriceButtonMode={setPriceButtonMode}
+        onSelectPriceFormat={setPriceFormat}
+        onToggleTheme={toggleTheme}
+      />
 
       {healthQuery.isError ? <Notice error className="shell-notice">Proxy unavailable. Start the dev server with npm run dev.</Notice> : null}
 
@@ -161,8 +169,6 @@ export function App() {
         eventsError={eventsQuery.isError ? eventsQuery.error.message : undefined}
         detailError={eventDetailQuery.isError ? eventDetailQuery.error.message : undefined}
         quotesError={quotesQuery.isError ? quotesQuery.error.message : undefined}
-        onSelectPriceButtonMode={setPriceButtonMode}
-        onSelectPriceFormat={setPriceFormat}
         onSelectCategory={handleSelectCategory}
         onSelectEvent={navigateToEvent}
         onBackToEvents={navigateToHomepage}

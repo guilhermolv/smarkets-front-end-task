@@ -26,8 +26,6 @@ type EventsPanelProps = {
   eventsError?: string;
   detailError?: string;
   quotesError?: string;
-  onSelectPriceButtonMode: (mode: PriceButtonMode) => void;
-  onSelectPriceFormat: (format: PriceFormat) => void;
   onSelectCategory: (categoryId: string) => void;
   onSelectEvent: (eventId: string) => void;
   onBackToEvents: () => void;
@@ -56,24 +54,12 @@ export function EventsPanel({
   eventsError,
   detailError,
   quotesError,
-  onSelectPriceButtonMode,
-  onSelectPriceFormat,
   onSelectCategory,
   onSelectEvent,
   onBackToEvents,
 }: EventsPanelProps) {
   const selectedCategoryLabel = categories.find((category) => category.id === selectedCategory)?.label ?? 'All';
   const eventTitle = selectedEventId ? events[0]?.name ?? 'Event details' : 'Featured exchange events';
-  const priceFormatOptions: Array<{ label: string; value: PriceFormat }> = [
-    { label: 'Decimal', value: 'decimal' },
-    { label: 'Percent', value: 'percent' },
-    { label: 'American', value: 'american' },
-  ];
-  const priceButtonOptions: Array<{ label: string; value: PriceButtonMode }> = [
-    { label: 'Buy price', value: 'buy' },
-    { label: 'Sell price', value: 'sell' },
-    { label: 'Both prices', value: 'both' },
-  ];
 
   return (
     <section className="panel events-panel">
@@ -95,29 +81,6 @@ export function EventsPanel({
       </div>
 
       {!selectedEventId ? <CategoryTabs selectedCategory={selectedCategory} onSelectCategory={onSelectCategory} /> : null}
-
-      <div className="price-settings" aria-label="Price display settings">
-        <label>
-          <span>Price format</span>
-          <select value={priceFormat} onChange={(event) => onSelectPriceFormat(event.target.value as PriceFormat)}>
-            {priceFormatOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Price buttons</span>
-          <select value={priceButtonMode} onChange={(event) => onSelectPriceButtonMode(event.target.value as PriceButtonMode)}>
-            {priceButtonOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
 
       {!isAuthenticated ? <Notice>Log in to load Smarkets events through the proxy.</Notice> : null}
       {isLoadingEvents && !selectedEventId ? <Notice>Loading events from Smarkets...</Notice> : null}
