@@ -1,0 +1,16 @@
+@use "../../styles/abstracts" as *;
+
+.notice {
+  background: var(--accent-muted);
+  border: 1px solid rgb-alpha($accent-rgb, 35%);
+  border-radius: $radius;
+  color: var(--accent);
+  margin: 18px 0 0;
+  padding: 12px 14px;
+
+  &.error {
+    background: rgb-alpha($danger-rgb, 12%);
+    border-color: rgb-alpha($danger-rgb, 36%);
+    color: var(--danger);
+  }
+}

@@ -1,0 +1,47 @@
+.eyebrow,
+.section-label {
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 1.45rem;
+  line-height: 1.18;
+  margin-bottom: 10px;
+}
+
+h3 {
+  font-size: 1rem;
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+p {
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+dd {
+  color: var(--text);
+  margin: 0;
+  overflow-wrap: anywhere;
+}

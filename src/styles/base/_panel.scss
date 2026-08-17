@@ -1,0 +1,7 @@
+.panel {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--elevated) 100%);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 28px;
+}

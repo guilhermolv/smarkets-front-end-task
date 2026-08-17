@@ -1,0 +1,26 @@
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.category-tab {
+  background: var(--panel-soft);
+  border-radius: 999px;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1;
+  padding: 10px 14px;
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+.category-tab-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--button-text);
+}

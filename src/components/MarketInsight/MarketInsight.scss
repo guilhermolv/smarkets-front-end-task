@@ -1,0 +1,50 @@
+.market-insight {
+  display: grid;
+  gap: 12px;
+  justify-items: stretch;
+
+  .detail-card & {
+    flex: 1 1 620px;
+    margin-top: 0;
+    min-width: 0;
+  }
+}
+
+.insight-toggle {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 3px;
+  justify-self: end;
+  padding: 4px;
+
+  button {
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: var(--muted);
+    font-weight: 900;
+    min-height: 34px;
+    padding: 0 16px;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      color: var(--accent);
+      transform: none;
+    }
+  }
+
+  .insight-toggle-active {
+    background: var(--text);
+    color: var(--bg);
+  }
+}
+
+@media (max-width: 1200px) {
+  .detail-card .market-insight {
+    flex: initial;
+    max-width: none;
+  }
+}

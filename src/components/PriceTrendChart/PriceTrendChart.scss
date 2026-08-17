@@ -1,0 +1,133 @@
+@use "../../styles/abstracts" as *;
+
+.price-trend {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+
+  svg {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: $radius;
+    cursor: crosshair;
+    height: 150px;
+    overflow: visible;
+    width: 100%;
+  }
+
+  line {
+    stroke: var(--border);
+    stroke-dasharray: 3 3;
+    stroke-width: 0.7;
+  }
+
+  path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 0.5;
+  }
+
+  circle {
+    stroke: var(--panel);
+    stroke-width: 0.8;
+  }
+}
+
+.price-trend-stage {
+  position: relative;
+}
+
+.price-trend-readout {
+  background: linear-gradient(90deg, rgb(20 22 24 / 92%) 0%, rgb(20 22 24 / 78%) 72%, transparent 100%);
+  color: var(--text);
+  min-width: 150px;
+  padding: 0 38px 0 10px;
+  pointer-events: none;
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  top: 1px;
+  z-index: 2;
+
+  .theme-light & {
+    background: linear-gradient(90deg, rgb(255 255 255 / 94%) 0%, rgb(255 255 255 / 82%) 72%, transparent 100%);
+  }
+
+  strong {
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    font-weight: 900;
+    left: 10px;
+    position: absolute;
+    top: -16px;
+    white-space: nowrap;
+  }
+
+  span {
+    display: grid;
+    font-size: 0.72rem;
+    font-weight: 800;
+    gap: 1px;
+    left: 10px;
+    line-height: 1.15;
+    min-width: 0;
+    position: absolute;
+    right: 38px;
+    transform: translateY(-50%);
+    transition: top 130ms ease;
+  }
+
+  em {
+    @include truncated;
+    font-style: normal;
+  }
+
+  b {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+}
+
+.price-trend-readout-latest {
+  background: transparent;
+
+  .theme-light & {
+    background: transparent;
+  }
+}
+
+.price-trend-guide-overlay {
+  background: color-mix(in srgb, var(--text) 72%, transparent);
+  bottom: 8px;
+  pointer-events: none;
+  position: absolute;
+  top: 8px;
+  transform: translateX(-1px);
+  width: 2px;
+  z-index: 4;
+}
+
+.price-trend-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  span {
+    align-items: center;
+    color: var(--muted);
+    display: inline-flex;
+    font-size: 0.72rem;
+    font-weight: 800;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  i {
+    border-radius: $pill;
+    display: inline-block;
+    height: 7px;
+    width: 7px;
+  }
+}

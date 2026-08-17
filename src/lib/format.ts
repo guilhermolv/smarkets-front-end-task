@@ -39,3 +39,12 @@ export function formatPrice(price: number | null, fallback: string) {
 
   return price >= 100 ? (price / 10000).toFixed(2) : price.toFixed(2);
 }
+
+export function formatPercentPrice(price: number) {
+  return `${formatPrice(price, '--')}%`;
+}
+
+export function formatOrderSize(quantity: number | null) {
+  if (quantity === null) return '--';
+  return `£${Math.round(quantity).toLocaleString()}`;
+}

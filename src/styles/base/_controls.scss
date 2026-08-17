@@ -1,0 +1,42 @@
+@use "../abstracts" as *;
+
+.status,
+.muted,
+.theme-toggle,
+.category-tab,
+.secondary-button,
+.event-action,
+.carousel-control {
+  border: 1px solid var(--border);
+}
+
+.theme-toggle,
+.secondary-button,
+.event-action {
+  background: transparent;
+  color: var(--text);
+}
+
+.secondary-button {
+  line-height: 1;
+  padding: 10px 12px;
+}
+
+.secondary-button:hover:not(:disabled),
+.theme-toggle:hover:not(:disabled),
+.event-action:hover:not(:disabled) {
+  @include interactive-outline;
+}
+
+.muted {
+  align-items: center;
+  background: var(--panel-soft);
+  border-radius: 999px;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  min-height: 32px;
+  padding: 0 10px;
+  white-space: nowrap;
+}

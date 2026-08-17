@@ -1,0 +1,5 @@
+@use "sass:string";
+
+@function rgb-alpha($channels, $alpha) {
+  @return string.unquote("rgb(#{$channels} / #{$alpha})");
+}

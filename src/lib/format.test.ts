@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatContractList, formatDateTime, formatEventType, formatPrice, formatState } from './format';
+import { formatContractList, formatDateTime, formatEventType, formatOrderSize, formatPercentPrice, formatPrice, formatState } from './format';
 
 describe('format helpers', () => {
   it('formats Smarkets machine names for display', () => {
@@ -20,5 +20,11 @@ describe('format helpers', () => {
     expect(formatPrice(null, '--')).toBe('--');
     expect(formatPrice(25000, '--')).toBe('2.50');
     expect(formatPrice(2.5, '--')).toBe('2.50');
+  });
+
+  it('formats percent prices and order sizes for market insight views', () => {
+    expect(formatPercentPrice(2.5)).toBe('2.50%');
+    expect(formatOrderSize(null)).toBe('--');
+    expect(formatOrderSize(12)).toBe('£12');
   });
 });

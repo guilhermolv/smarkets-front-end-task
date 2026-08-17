@@ -1,0 +1,1 @@
+export { MarketInsight } from './MarketInsight';

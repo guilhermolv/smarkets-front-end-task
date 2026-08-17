@@ -1,0 +1,16 @@
+.auth-layout {
+  align-items: stretch;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(300px, 420px) 1fr;
+}
+
+.auth-layout-compact {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 960px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,14 @@
+@use "variables" as *;
+@use "functions" as *;
+
+@mixin interactive-outline {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb-alpha($accent-rgb, 12%);
+  color: var(--accent);
+}
+
+@mixin truncated {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

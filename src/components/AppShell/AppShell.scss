@@ -1,0 +1,64 @@
+.shell {
+  --accent: #0bce93;
+  --accent-muted: rgb(11 206 147 / 14%);
+  --ask: #3b82f6;
+  --bg: #050607;
+  --border: #2a2f35;
+  --button-text: #05110d;
+  --carousel: #101418;
+  --carousel-border: #263039;
+  --carousel-muted: #cbd5e1;
+  --carousel-text: #ffffff;
+  --danger: #fb7185;
+  --elevated: #1a1d20;
+  --muted: #9ca3af;
+  --panel: #141618;
+  --panel-soft: #1e2226;
+  --shadow: 0 18px 60px rgb(0 0 0 / 38%);
+  --text: #f8fafc;
+  --text-soft: #d1d5db;
+  background:
+    radial-gradient(circle at 50% -20%, rgb(11 206 147 / 12%), transparent 34rem),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 28px;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
+}
+
+.theme-light {
+  --bg: #f5f7fa;
+  --border: #d9e1eb;
+  --button-text: #05110d;
+  --carousel: #ffffff;
+  --carousel-border: #d9e1eb;
+  --carousel-muted: #5f6b7a;
+  --carousel-text: #111827;
+  --elevated: #ffffff;
+  --muted: #5f6b7a;
+  --panel: #ffffff;
+  --panel-soft: #f1f5f9;
+  --shadow: 0 18px 44px rgb(15 23 42 / 10%);
+  --text: #111827;
+  --text-soft: #3f4b5c;
+  background:
+    radial-gradient(circle at 50% -20%, rgb(11 206 147 / 18%), transparent 34rem),
+    var(--bg);
+}
+
+.top-bar,
+.auth-layout,
+.events-panel,
+.shell-notice {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1180px;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding: 18px;
+  }
+}

@@ -1,0 +1,104 @@
+@use "../../styles/abstracts" as *;
+
+.order-book {
+  display: grid;
+  gap: 10px;
+}
+
+.order-book-header {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  text-transform: uppercase;
+
+  strong {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    letter-spacing: 0;
+  }
+
+  span {
+    align-items: center;
+    display: inline-flex;
+    font-size: 0.76rem;
+    font-weight: 800;
+    gap: 5px;
+    text-transform: none;
+  }
+}
+
+.book-dot {
+  border-radius: 999px;
+  display: inline-block;
+  height: 7px;
+  width: 7px;
+}
+
+.book-dot-offer {
+  background: #60a5fa;
+}
+
+.book-dot-bid {
+  background: var(--accent);
+}
+
+.order-book-table {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+
+  > span {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 900;
+    padding: 8px 10px;
+    text-align: right;
+    text-transform: uppercase;
+  }
+}
+
+.order-book-row {
+  display: contents;
+
+  span {
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.84rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    padding: 8px 10px;
+    text-align: right;
+  }
+
+  .offer-size {
+    background: rgb-alpha($ask-rgb, 18%);
+    color: #60a5fa;
+  }
+
+  .bid-size {
+    background: rgb-alpha($accent-rgb, 16%);
+    color: var(--accent);
+  }
+}
+
+.order-book-controls {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(180px, 1fr) minmax(92px, 120px);
+
+  label {
+    font-size: 0.76rem;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 640px) {
+  .order-book-controls {
+    grid-template-columns: 1fr;
+  }
+}
