@@ -1,3 +1,5 @@
+import type { PriceFormat } from '../types/price';
+
 export function formatEventType(type: string | null) {
   if (!type) return 'Event';
 
@@ -34,14 +36,29 @@ export function formatContractList(contracts: Array<{ name: string }>) {
   return remaining > 0 ? `${visibleContracts.join(', ')} +${remaining} more` : visibleContracts.join(', ');
 }
 
-export function formatPrice(price: number | null, fallback: string) {
+function normalizeDecimalPrice(price: number) {
+  return price >= 100 ? price / 10000 : price;
+}
+
+export function formatPrice(price: number | null, fallback: string, format: PriceFormat = 'decimal') {
   if (price === null) return fallback;
 
-  return price >= 100 ? (price / 10000).toFixed(2) : price.toFixed(2);
+  const decimalPrice = normalizeDecimalPrice(price);
+
+  if (format === 'percent') {
+    return `${(100 / decimalPrice).toFixed(2)}%`;
+  }
+
+  if (format === 'american') {
+    if (decimalPrice >= 2) return `+${Math.round((decimalPrice - 1) * 100)}`;
+    return `${Math.round(-100 / (decimalPrice - 1))}`;
+  }
+
+  return decimalPrice.toFixed(2);
 }
 
 export function formatPercentPrice(price: number) {
-  return `${formatPrice(price, '--')}%`;
+  return formatPrice(price, '--', 'percent');
 }
 
 export function formatOrderSize(quantity: number | null) {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ContractQuote, ContractSummary } from '../../lib/schemas';
-import type { PriceHistory } from '../../types/price';
+import type { PriceFormat, PriceHistory } from '../../types/price';
 import { OrderBook } from '../OrderBook';
 import { PriceTrendChart } from '../PriceTrendChart';
 import './MarketInsight.scss';
@@ -8,10 +8,11 @@ import './MarketInsight.scss';
 type MarketInsightProps = {
   contracts: ContractSummary[];
   history: PriceHistory;
+  priceFormat: PriceFormat;
   quotesByContractId: Map<string, ContractQuote>;
 };
 
-export function MarketInsight({ contracts, history, quotesByContractId }: MarketInsightProps) {
+export function MarketInsight({ contracts, history, priceFormat, quotesByContractId }: MarketInsightProps) {
   const [view, setView] = useState<'chart' | 'book'>('chart');
 
   return (
@@ -24,7 +25,11 @@ export function MarketInsight({ contracts, history, quotesByContractId }: Market
           Order book
         </button>
       </div>
-      {view === 'chart' ? <PriceTrendChart contracts={contracts} history={history} /> : <OrderBook contracts={contracts} quotesByContractId={quotesByContractId} />}
+      {view === 'chart' ? (
+        <PriceTrendChart contracts={contracts} history={history} priceFormat={priceFormat} />
+      ) : (
+        <OrderBook contracts={contracts} priceFormat={priceFormat} quotesByContractId={quotesByContractId} />
+      )}
     </div>
   );
 }

@@ -1,15 +1,16 @@
 import { PointerEvent, useState } from 'react';
-import { formatPercentPrice } from '../../lib/format';
+import { formatPrice } from '../../lib/format';
 import type { ContractSummary } from '../../lib/schemas';
-import type { PriceHistory, PricePoint } from '../../types/price';
+import type { PriceFormat, PriceHistory, PricePoint } from '../../types/price';
 import './PriceTrendChart.scss';
 
 type PriceTrendChartProps = {
   contracts: ContractSummary[];
   history: PriceHistory;
+  priceFormat: PriceFormat;
 };
 
-export function PriceTrendChart({ contracts, history }: PriceTrendChartProps) {
+export function PriceTrendChart({ contracts, history, priceFormat }: PriceTrendChartProps) {
   const [hoverX, setHoverX] = useState<number | null>(null);
   const colours = ['#10b981', '#3b82f6', '#8b5cf6'];
   const plotStartX = 0;
@@ -137,7 +138,7 @@ export function PriceTrendChart({ contracts, history }: PriceTrendChartProps) {
           {labelPlacements.map(({ contract, colour, point, y }) => (
             <span key={contract.id} style={{ color: colour, top: `${(y / 40) * 100}%` }}>
               <em>{contract.name}</em>
-              <b>{formatPercentPrice(point.price)}</b>
+              <b>{formatPrice(point.price, '--', priceFormat)}</b>
             </span>
           ))}
         </div>

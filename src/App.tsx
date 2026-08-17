@@ -11,6 +11,7 @@ import { useTheme } from './hooks/useTheme';
 import { fetchEventDetail, fetchFeaturedEvents, fetchHealth, fetchMarketQuotes, fetchSession, login, logout } from './lib/api';
 import { isAuthenticationError, isSessionCurrent } from './lib/session';
 import type { LoginResponse } from './lib/schemas';
+import type { PriceButtonMode, PriceFormat } from './types/price';
 
 export function App() {
   const queryClient = useQueryClient();
@@ -19,6 +20,8 @@ export function App() {
   const healthQuery = useQuery({ queryKey: ['proxy-health'], queryFn: fetchHealth });
   const [session, setSession] = useState<LoginResponse | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [priceFormat, setPriceFormat] = useState<PriceFormat>('percent');
+  const [priceButtonMode, setPriceButtonMode] = useState<PriceButtonMode>('both');
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const sessionQuery = useQuery({
@@ -148,6 +151,8 @@ export function App() {
         eventsFetchedAt={eventsQuery.data?.fetchedAt}
         detailFetchedAt={eventDetailQuery.data?.fetchedAt}
         quotesFetchedAt={quotesQuery.data?.fetchedAt}
+        priceButtonMode={priceButtonMode}
+        priceFormat={priceFormat}
         quotesByContractId={quotesByContractId}
         priceHistory={priceHistory}
         quotesLoaded={Boolean(quotesQuery.data)}
@@ -156,6 +161,8 @@ export function App() {
         eventsError={eventsQuery.isError ? eventsQuery.error.message : undefined}
         detailError={eventDetailQuery.isError ? eventDetailQuery.error.message : undefined}
         quotesError={quotesQuery.isError ? quotesQuery.error.message : undefined}
+        onSelectPriceButtonMode={setPriceButtonMode}
+        onSelectPriceFormat={setPriceFormat}
         onSelectCategory={handleSelectCategory}
         onSelectEvent={navigateToEvent}
         onBackToEvents={navigateToHomepage}

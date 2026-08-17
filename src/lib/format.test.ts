@@ -20,10 +20,13 @@ describe('format helpers', () => {
     expect(formatPrice(null, '--')).toBe('--');
     expect(formatPrice(25000, '--')).toBe('2.50');
     expect(formatPrice(2.5, '--')).toBe('2.50');
+    expect(formatPrice(2.5, '--', 'percent')).toBe('40.00%');
+    expect(formatPrice(1.5, '--', 'american')).toBe('-200');
+    expect(formatPrice(2.5, '--', 'american')).toBe('+150');
   });
 
   it('formats percent prices and order sizes for market insight views', () => {
-    expect(formatPercentPrice(2.5)).toBe('2.50%');
+    expect(formatPercentPrice(2.5)).toBe('40.00%');
     expect(formatOrderSize(null)).toBe('--');
     expect(formatOrderSize(12)).toBe('£12');
   });

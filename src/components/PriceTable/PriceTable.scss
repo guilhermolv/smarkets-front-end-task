@@ -29,7 +29,7 @@
   align-items: center;
   display: grid;
   gap: 6px;
-  grid-template-columns: minmax(82px, 1fr) repeat(3, minmax(54px, 62px));
+  grid-template-columns: minmax(82px, 1fr) repeat(var(--price-column-count, 2), minmax(62px, 74px));
   min-width: 0;
 }
 
@@ -59,7 +59,7 @@
 
 .detail-card .price-header,
 .detail-card .price-pair {
-  grid-template-columns: minmax(150px, 1fr) repeat(3, minmax(66px, 88px));
+  grid-template-columns: minmax(150px, 1fr) repeat(var(--price-column-count, 2), minmax(76px, 96px));
 }
 
 .back-price,
@@ -105,7 +105,7 @@
 @media (max-width: 640px) {
   .price-header,
   .price-pair {
-    grid-template-columns: minmax(72px, 1fr) repeat(3, minmax(48px, 1fr));
+    grid-template-columns: minmax(72px, 1fr) repeat(var(--price-column-count, 2), minmax(58px, 1fr));
   }
 }
 

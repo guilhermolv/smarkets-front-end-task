@@ -3,7 +3,7 @@ import { detailMarketPageSize } from '../../constants/categories';
 import { formatDateTime, formatEventType } from '../../lib/format';
 import { marketHasPrice } from '../../lib/quotes';
 import type { ContractQuote, EventSummary } from '../../lib/schemas';
-import type { PriceHistory } from '../../types/price';
+import type { PriceButtonMode, PriceFormat, PriceHistory } from '../../types/price';
 import { MarketRow } from '../MarketRow';
 import { MarketToolbar } from '../MarketToolbar';
 import './EventCard.scss';
@@ -11,13 +11,15 @@ import './EventCard.scss';
 type EventCardProps = {
   event: EventSummary;
   isDetailView: boolean;
+  priceButtonMode: PriceButtonMode;
+  priceFormat: PriceFormat;
   quotesByContractId: Map<string, ContractQuote>;
   priceHistory: PriceHistory;
   quotesLoaded: boolean;
   onSelectEvent: (eventId: string) => void;
 };
 
-export function EventCard({ event, isDetailView, quotesByContractId, priceHistory, quotesLoaded, onSelectEvent }: EventCardProps) {
+export function EventCard({ event, isDetailView, priceButtonMode, priceFormat, quotesByContractId, priceHistory, quotesLoaded, onSelectEvent }: EventCardProps) {
   const [showUnavailableMarkets, setShowUnavailableMarkets] = useState(false);
   const [visibleMarketLimit, setVisibleMarketLimit] = useState(detailMarketPageSize);
 
@@ -61,6 +63,8 @@ export function EventCard({ event, isDetailView, quotesByContractId, priceHistor
               key={market.id}
               market={market}
               isDetailView={isDetailView}
+              priceButtonMode={priceButtonMode}
+              priceFormat={priceFormat}
               quotesByContractId={quotesByContractId}
               priceHistory={priceHistory}
               onSelectEvent={() => onSelectEvent(event.id)}

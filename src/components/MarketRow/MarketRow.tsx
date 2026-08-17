@@ -1,19 +1,21 @@
 import { formatContractList, formatState } from '../../lib/format';
 import { readDisplayPrice } from '../../lib/quotes';
 import type { ContractQuote, MarketSummary } from '../../lib/schemas';
-import type { PriceHistory } from '../../types/price';
+import type { PriceButtonMode, PriceFormat, PriceHistory } from '../../types/price';
 import { PriceTable } from '../PriceTable';
 import './MarketRow.scss';
 
 type MarketRowProps = {
   market: MarketSummary;
   isDetailView: boolean;
+  priceButtonMode: PriceButtonMode;
+  priceFormat: PriceFormat;
   quotesByContractId: Map<string, ContractQuote>;
   priceHistory: PriceHistory;
   onSelectEvent?: () => void;
 };
 
-export function MarketRow({ market, isDetailView, quotesByContractId, priceHistory, onSelectEvent }: MarketRowProps) {
+export function MarketRow({ market, isDetailView, priceButtonMode, priceFormat, quotesByContractId, priceHistory, onSelectEvent }: MarketRowProps) {
   const visibleContracts = market.contracts.slice(0, 3);
   const hasVisiblePrice = visibleContracts.some((contract) => readDisplayPrice(quotesByContractId.get(contract.id)) !== null);
 
@@ -42,6 +44,8 @@ export function MarketRow({ market, isDetailView, quotesByContractId, priceHisto
             <PriceTable
               contracts={visibleContracts}
               isDetailView={isDetailView}
+              priceButtonMode={priceButtonMode}
+              priceFormat={priceFormat}
               priceHistory={priceHistory}
               quotesByContractId={quotesByContractId}
             />
