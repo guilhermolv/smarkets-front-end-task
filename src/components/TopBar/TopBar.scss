@@ -1,3 +1,5 @@
+@use "../../styles/abstracts" as *;
+
 .top-bar {
   align-items: center;
   display: flex;
@@ -115,7 +117,41 @@
   }
 
   select {
-    min-height: 44px;
+    background:
+      linear-gradient(45deg, transparent 50%, var(--text) 50%) right 18px center / 7px 7px no-repeat,
+      linear-gradient(135deg, var(--text) 50%, transparent 50%) right 12px center / 7px 7px no-repeat,
+      linear-gradient(180deg, var(--panel-soft), var(--panel));
+    border-color: rgb-alpha($accent-rgb, 28%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+    color: var(--text);
+    cursor: pointer;
+    min-height: 48px;
+    padding: 12px 42px 12px 14px;
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+    width: 100%;
+  }
+
+  select:hover {
+    border-color: rgb-alpha($accent-rgb, 52%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 5%),
+      0 0 0 3px rgb-alpha($accent-rgb, 8%);
+  }
+
+  select:focus {
+    border-color: var(--accent);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 5%),
+      0 0 0 4px rgb-alpha($accent-rgb, 18%);
+    outline: 0;
+  }
+
+  select option {
+    background: var(--panel);
+    color: var(--text);
   }
 }
 
