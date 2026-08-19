@@ -56,10 +56,6 @@ export function formatChartScrubLabel(timestamp: string | undefined) {
     .toUpperCase();
 }
 
-export function toDecimalPrice(price: number) {
-  return toDecimalOdds(price);
-}
-
 function formatGbp(amount: number) {
   return `£${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -82,10 +78,6 @@ export function formatPrice(price: number | null, fallback: string, format: Pric
 
   const decimalOdds = toDecimalOdds(price);
   return decimalOdds === null ? fallback : decimalOdds.toFixed(2);
-}
-
-export function formatPercentPrice(price: number) {
-  return formatPrice(price, '--', 'percent');
 }
 
 export function formatOrderSize(quantity: number | null, priceBp: number | null = null) {

@@ -57,14 +57,7 @@ export function EventCard({ event, isDetailView, onSelectEvent }: EventCardProps
       ) : null}
       <div className="market-list">
         {visibleMarkets.length ? (
-          visibleMarkets.map((market) => (
-            <MarketRow
-              key={market.id}
-              market={market}
-              isDetailView={isDetailView}
-              onSelectEvent={isDetailView ? undefined : () => onSelectEvent(event.id)}
-            />
-          ))
+          visibleMarkets.map((market) => <MarketRow key={market.id} market={market} isDetailView={isDetailView} />)
         ) : (
           <p className="empty-markets">
             {isDetailView && pricedMarketCount === 0 && !showUnavailableMarkets

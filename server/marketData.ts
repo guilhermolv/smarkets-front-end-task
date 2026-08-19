@@ -185,8 +185,8 @@ export async function fetchEventDetail(eventId: string, sessionToken?: string) {
     sessionToken,
     schema: smarketsMarketsResponseSchema,
   });
-  const markets = marketsResponse.markets;
-  const marketIds = markets.map((market) => market.id).slice(0, 50);
+  const markets = marketsResponse.markets.slice(0, 50);
+  const marketIds = markets.map((market) => market.id);
   const contractsResponse =
     marketIds.length > 0
       ? await smarketsClient.request({
