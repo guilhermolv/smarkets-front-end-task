@@ -37,13 +37,17 @@
   gap: 12px;
   grid-auto-columns: minmax(230px, 300px);
   grid-auto-flow: column;
+  margin: -18px -18px -22px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding: 18px 18px 22px;
   scroll-snap-type: x proximity;
-  scrollbar-color: var(--accent) transparent;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   touch-action: pan-x;
   user-select: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .event-carousel-dragging {

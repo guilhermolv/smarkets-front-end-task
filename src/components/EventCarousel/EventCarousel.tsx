@@ -11,10 +11,28 @@ type EventCarouselProps = {
 export function EventCarousel({ events, onSelectEvent }: EventCarouselProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
   const dragStart = useRef<{ pointerId: number; x: number; scrollLeft: number } | null>(null);
+  const hasDragged = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
 
   function scrollByCards(direction: -1 | 1) {
-    railRef.current?.scrollBy({ left: direction * 320, behavior: 'smooth' });
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
+    const isAtStart = rail.scrollLeft <= 4;
+    const isAtEnd = rail.scrollLeft >= maxScrollLeft - 4;
+
+    if (direction === -1 && isAtStart) {
+      rail.scrollTo({ left: maxScrollLeft, behavior: 'smooth' });
+      return;
+    }
+
+    if (direction === 1 && isAtEnd) {
+      rail.scrollTo({ left: 0, behavior: 'smooth' });
+      return;
+    }
+
+    rail.scrollBy({ left: direction * 320, behavior: 'smooth' });
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
@@ -25,20 +43,27 @@ export function EventCarousel({ events, onSelectEvent }: EventCarouselProps) {
       x: event.clientX,
       scrollLeft: railRef.current.scrollLeft,
     };
-    railRef.current.setPointerCapture(event.pointerId);
+    hasDragged.current = false;
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     if (!railRef.current || !dragStart.current) return;
 
     const delta = event.clientX - dragStart.current.x;
-    if (Math.abs(delta) > 4) setIsDragging(true);
+    if (Math.abs(delta) <= 6) return;
+
+    if (!hasDragged.current) {
+      hasDragged.current = true;
+      setIsDragging(true);
+      railRef.current.setPointerCapture(event.pointerId);
+    }
+
     railRef.current.scrollLeft = dragStart.current.scrollLeft - delta;
   }
 
   function endDrag() {
     dragStart.current = null;
-    window.setTimeout(() => setIsDragging(false), 0);
+    window.setTimeout(() => setIsDragging(false), 80);
   }
 
   return (
@@ -59,13 +84,19 @@ export function EventCarousel({ events, onSelectEvent }: EventCarouselProps) {
         onPointerUp={endDrag}
         ref={railRef}
       >
-        {events.slice(0, 8).map((event) => (
+        {events.map((event) => (
           <button
             className="carousel-card"
             key={event.id}
             type="button"
-            onClick={() => {
-              if (!isDragging) onSelectEvent(event.id);
+            onClick={(clickEvent) => {
+              if (hasDragged.current) {
+                clickEvent.preventDefault();
+                hasDragged.current = false;
+                return;
+              }
+
+              onSelectEvent(event.id);
             }}
           >
             <span>{formatEventType(event.type)}</span>

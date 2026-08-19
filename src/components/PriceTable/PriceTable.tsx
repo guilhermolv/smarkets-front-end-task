@@ -1,20 +1,19 @@
 import type { CSSProperties } from 'react';
+import { useExchangeQuotes } from '../../context/ExchangeQuotesContext';
+import { usePriceDisplay } from '../../context/PriceDisplayContext';
 import { formatPrice } from '../../lib/format';
-import type { ContractQuote, ContractSummary } from '../../lib/schemas';
-import type { PriceButtonMode, PriceFormat, PriceHistory } from '../../types/price';
+import type { ContractSummary } from '../../lib/schemas';
 import { MarketInsight } from '../MarketInsight';
 import './PriceTable.scss';
 
 type PriceTableProps = {
   contracts: ContractSummary[];
   isDetailView: boolean;
-  priceButtonMode: PriceButtonMode;
-  priceFormat: PriceFormat;
-  priceHistory: PriceHistory;
-  quotesByContractId: Map<string, ContractQuote>;
 };
 
-export function PriceTable({ contracts, isDetailView, priceButtonMode, priceFormat, priceHistory, quotesByContractId }: PriceTableProps) {
+export function PriceTable({ contracts, isDetailView }: PriceTableProps) {
+  const { priceButtonMode, priceFormat } = usePriceDisplay();
+  const { quotesByContractId } = useExchangeQuotes();
   const showBuyPrice = priceButtonMode === 'buy' || priceButtonMode === 'both';
   const showSellPrice = priceButtonMode === 'sell' || priceButtonMode === 'both';
   const priceColumnCount = Number(showBuyPrice) + Number(showSellPrice);
@@ -50,9 +49,7 @@ export function PriceTable({ contracts, isDetailView, priceButtonMode, priceForm
           );
         })}
       </div>
-      {isDetailView ? (
-        <MarketInsight contracts={contracts} history={priceHistory} priceFormat={priceFormat} quotesByContractId={quotesByContractId} />
-      ) : null}
+      {isDetailView ? <MarketInsight contracts={contracts} /> : null}
     </div>
   );
 }

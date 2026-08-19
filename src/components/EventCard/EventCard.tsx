@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { detailMarketPageSize } from '../../constants/categories';
+import { useExchangeQuotes } from '../../context/ExchangeQuotesContext';
 import { formatDateTime, formatEventType } from '../../lib/format';
-import { marketHasPrice } from '../../lib/quotes';
-import type { ContractQuote, EventSummary } from '../../lib/schemas';
-import type { PriceButtonMode, PriceFormat, PriceHistory } from '../../types/price';
+import { applyFrozenMarketOrder, marketHasPrice, snapshotPricedMarketOrder } from '../../lib/quotes';
+import type { EventSummary } from '../../lib/schemas';
 import { MarketRow } from '../MarketRow';
 import { MarketToolbar } from '../MarketToolbar';
 import './EventCard.scss';
@@ -11,25 +11,21 @@ import './EventCard.scss';
 type EventCardProps = {
   event: EventSummary;
   isDetailView: boolean;
-  priceButtonMode: PriceButtonMode;
-  priceFormat: PriceFormat;
-  quotesByContractId: Map<string, ContractQuote>;
-  priceHistory: PriceHistory;
-  quotesLoaded: boolean;
   onSelectEvent: (eventId: string) => void;
 };
 
-export function EventCard({ event, isDetailView, priceButtonMode, priceFormat, quotesByContractId, priceHistory, quotesLoaded, onSelectEvent }: EventCardProps) {
+export function EventCard({ event, isDetailView, onSelectEvent }: EventCardProps) {
+  const { quotesByContractId, quotesLoaded } = useExchangeQuotes();
   const [showUnavailableMarkets, setShowUnavailableMarkets] = useState(false);
   const [visibleMarketLimit, setVisibleMarketLimit] = useState(detailMarketPageSize);
+  const [frozenMarketIds, setFrozenMarketIds] = useState<string[] | null>(null);
+  const nextFrozenMarketIds = snapshotPricedMarketOrder(event.markets, quotesByContractId, quotesLoaded, frozenMarketIds);
 
-  useEffect(() => {
-    setShowUnavailableMarkets(false);
-    setVisibleMarketLimit(detailMarketPageSize);
-  }, [event.id, isDetailView]);
-  const rankedMarkets = [...event.markets].sort(
-    (left, right) => Number(marketHasPrice(right, quotesByContractId)) - Number(marketHasPrice(left, quotesByContractId)),
-  );
+  if (nextFrozenMarketIds !== frozenMarketIds) {
+    setFrozenMarketIds(nextFrozenMarketIds);
+  }
+
+  const rankedMarkets = applyFrozenMarketOrder(event.markets, nextFrozenMarketIds);
   const pricedMarketCount = rankedMarkets.filter((market) => marketHasPrice(market, quotesByContractId)).length;
   const unavailableMarketCount = rankedMarkets.length - pricedMarketCount;
   const shouldHideUnavailableMarkets = Boolean(isDetailView && quotesLoaded && !showUnavailableMarkets);
@@ -40,7 +36,10 @@ export function EventCard({ event, isDetailView, priceButtonMode, priceFormat, q
   const remainingMarketCount = filteredMarkets.length - visibleMarkets.length;
 
   return (
-    <article className={isDetailView ? 'event-card detail-card' : 'event-card'}>
+    <article
+      className={isDetailView ? 'event-card detail-card' : 'event-card event-card-clickable'}
+      onClick={isDetailView ? undefined : () => onSelectEvent(event.id)}
+    >
       <header>
         <div>
           <p className="event-meta">{formatEventType(event.type)}</p>
@@ -63,11 +62,7 @@ export function EventCard({ event, isDetailView, priceButtonMode, priceFormat, q
               key={market.id}
               market={market}
               isDetailView={isDetailView}
-              priceButtonMode={priceButtonMode}
-              priceFormat={priceFormat}
-              quotesByContractId={quotesByContractId}
-              priceHistory={priceHistory}
-              onSelectEvent={() => onSelectEvent(event.id)}
+              onSelectEvent={isDetailView ? undefined : () => onSelectEvent(event.id)}
             />
           ))
         ) : (
@@ -88,7 +83,14 @@ export function EventCard({ event, isDetailView, priceButtonMode, priceFormat, q
         </button>
       ) : null}
       {!isDetailView ? (
-        <button className="event-action" type="button" onClick={() => onSelectEvent(event.id)}>
+        <button
+          className="event-action"
+          type="button"
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            onSelectEvent(event.id);
+          }}
+        >
           View event markets
         </button>
       ) : null}

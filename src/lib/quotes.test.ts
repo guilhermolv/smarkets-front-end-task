@@ -1,6 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { marketHasPrice, readDisplayPrice } from './quotes';
-import type { MarketSummary } from './schemas';
+import { applyFrozenMarketOrder, marketHasPrice, readDisplayPrice, snapshotPricedMarketOrder, sortMarketsPricedFirst } from './quotes';
+import type { ContractQuote, MarketSummary } from './schemas';
+
+function quote(contractId: string, bestBackPrice: number | null): ContractQuote {
+  return {
+    contractId,
+    bestBackPrice,
+    bestLayPrice: null,
+    bids: [],
+    offers: [],
+    lastTradedPrice: null,
+    lastTradedAt: null,
+  };
+}
 
 describe('quote helpers', () => {
   it('prefers back price, then last traded, then lay', () => {
@@ -22,24 +34,34 @@ describe('quote helpers', () => {
     };
 
     expect(marketHasPrice(market, new Map())).toBe(false);
-    expect(
-      marketHasPrice(
-        market,
-        new Map([
-          [
-            'c2',
-            {
-              contractId: 'c2',
-              bestBackPrice: 2.1,
-              bestLayPrice: null,
-              bids: [],
-              offers: [],
-              lastTradedPrice: null,
-              lastTradedAt: null,
-            },
-          ],
-        ]),
-      ),
-    ).toBe(true);
+    expect(marketHasPrice(market, new Map([['c2', quote('c2', 2.1)]]))).toBe(true);
+  });
+
+  it('freezes priced-first order so later quotes do not reshuffle markets', () => {
+    const winner: MarketSummary = {
+      id: 'winner',
+      name: 'Winner',
+      state: 'open',
+      contracts: [{ id: 'home', name: 'Home' }],
+    };
+    const correctScore: MarketSummary = {
+      id: 'correct-score',
+      name: 'Correct score',
+      state: 'open',
+      contracts: [{ id: 'score', name: '1-0' }],
+    };
+    const markets = [correctScore, winner];
+    const firstQuotes = new Map([['home', quote('home', 5000)]]);
+    const laterQuotes = new Map([
+      ['home', quote('home', 5000)],
+      ['score', quote('score', 4000)],
+    ]);
+
+    const frozenIds = snapshotPricedMarketOrder(markets, firstQuotes, true, null);
+    expect(sortMarketsPricedFirst(markets, firstQuotes).map((market) => market.id)).toEqual(['winner', 'correct-score']);
+    expect(frozenIds).toEqual(['winner', 'correct-score']);
+    expect(snapshotPricedMarketOrder(markets, laterQuotes, true, frozenIds)).toEqual(['winner', 'correct-score']);
+    expect(applyFrozenMarketOrder(markets, frozenIds).map((market) => market.id)).toEqual(['winner', 'correct-score']);
+    expect(sortMarketsPricedFirst(markets, laterQuotes).map((market) => market.id)).toEqual(['correct-score', 'winner']);
   });
 });

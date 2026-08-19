@@ -1,6 +1,6 @@
 import { categories } from '../../constants/categories';
-import type { ContractQuote, EventSummary } from '../../lib/schemas';
-import type { PriceButtonMode, PriceFormat, PriceHistory } from '../../types/price';
+import { ExchangeQuotesProvider } from '../../context/ExchangeQuotesContext';
+import { useExchangeView } from '../../hooks/useExchangeView';
 import { CategoryTabs } from '../CategoryTabs';
 import { EventCard } from '../EventCard';
 import { EventCarousel } from '../EventCarousel';
@@ -9,26 +9,12 @@ import './EventsPanel.scss';
 
 type EventsPanelProps = {
   isAuthenticated: boolean;
-  selectedEventId: string | null;
   selectedCategory: string;
-  events: EventSummary[];
-  featuredEvents: EventSummary[];
-  eventsFetchedAt?: string;
-  detailFetchedAt?: string;
-  quotesFetchedAt?: string;
-  priceButtonMode: PriceButtonMode;
-  priceFormat: PriceFormat;
-  quotesByContractId: Map<string, ContractQuote>;
-  priceHistory: PriceHistory;
-  quotesLoaded: boolean;
-  isLoadingEvents: boolean;
-  isLoadingDetail: boolean;
-  eventsError?: string;
-  detailError?: string;
-  quotesError?: string;
+  selectedEventId: string | null;
+  onBackToEvents: () => void;
   onSelectCategory: (categoryId: string) => void;
   onSelectEvent: (eventId: string) => void;
-  onBackToEvents: () => void;
+  onSessionExpired: (message: string) => void;
 };
 
 function formatFetchedAt(value: string) {
@@ -37,29 +23,21 @@ function formatFetchedAt(value: string) {
 
 export function EventsPanel({
   isAuthenticated,
-  selectedEventId,
   selectedCategory,
-  events,
-  featuredEvents,
-  eventsFetchedAt,
-  detailFetchedAt,
-  quotesFetchedAt,
-  priceButtonMode,
-  priceFormat,
-  quotesByContractId,
-  priceHistory,
-  quotesLoaded,
-  isLoadingEvents,
-  isLoadingDetail,
-  eventsError,
-  detailError,
-  quotesError,
+  selectedEventId,
+  onBackToEvents,
   onSelectCategory,
   onSelectEvent,
-  onBackToEvents,
+  onSessionExpired,
 }: EventsPanelProps) {
+  const view = useExchangeView({
+    isAuthenticated,
+    onSessionExpired,
+    selectedCategory,
+    selectedEventId,
+  });
   const selectedCategoryLabel = categories.find((category) => category.id === selectedCategory)?.label ?? 'All';
-  const eventTitle = selectedEventId ? events[0]?.name ?? 'Event details' : 'Featured exchange events';
+  const eventTitle = selectedEventId ? (view.events[0]?.name ?? 'Event details') : 'Featured exchange events';
 
   return (
     <section className="panel events-panel">
@@ -74,42 +52,45 @@ export function EventsPanel({
               Back to events
             </button>
           ) : null}
-          {eventsFetchedAt ? <span className="muted">Events {formatFetchedAt(eventsFetchedAt)}</span> : null}
-          {detailFetchedAt ? <span className="muted">Detail {formatFetchedAt(detailFetchedAt)}</span> : null}
-          {quotesFetchedAt ? <span className="muted">Prices {formatFetchedAt(quotesFetchedAt)}</span> : null}
+          {view.eventsFetchedAt ? <span className="muted">Events {formatFetchedAt(view.eventsFetchedAt)}</span> : null}
+          {view.detailFetchedAt ? <span className="muted">Detail {formatFetchedAt(view.detailFetchedAt)}</span> : null}
+          {view.quotesFetchedAt ? <span className="muted">Prices {formatFetchedAt(view.quotesFetchedAt)}</span> : null}
         </div>
       </div>
 
       {!selectedEventId ? <CategoryTabs selectedCategory={selectedCategory} onSelectCategory={onSelectCategory} /> : null}
 
-      {!isAuthenticated ? <Notice>Log in to load Smarkets events through the proxy.</Notice> : null}
-      {isLoadingEvents && !selectedEventId ? <Notice>Loading events from Smarkets...</Notice> : null}
-      {isLoadingDetail ? <Notice>Loading event markets from Smarkets...</Notice> : null}
-      {eventsError ? <Notice error>Unable to load events. {eventsError}</Notice> : null}
-      {detailError ? <Notice error>Unable to load event details. {detailError}</Notice> : null}
-      {isAuthenticated && quotesError ? <Notice error>Unable to refresh prices. {quotesError}</Notice> : null}
-      {featuredEvents.length === 0 && eventsFetchedAt && !selectedEventId ? (
+      {!isAuthenticated ? (
+        <Notice>Log in to load Smarkets events through the proxy. A local chart stress event is available without login.</Notice>
+      ) : null}
+      {view.isLoadingEvents && !selectedEventId ? <Notice>Loading events from Smarkets...</Notice> : null}
+      {view.isLoadingDetail ? <Notice>Loading event markets from Smarkets...</Notice> : null}
+      {view.eventsError ? <Notice error>Unable to load events. {view.eventsError}</Notice> : null}
+      {view.detailError ? <Notice error>Unable to load event details. {view.detailError}</Notice> : null}
+      {isAuthenticated && view.quotesError ? <Notice error>Unable to refresh prices. {view.quotesError}</Notice> : null}
+      {view.featuredEvents.length === 0 && view.eventsFetchedAt && !selectedEventId ? (
         <Notice>No upcoming {selectedCategoryLabel.toLowerCase()} events with markets were returned.</Notice>
       ) : null}
 
-      {!selectedEventId && featuredEvents.length ? <EventCarousel events={featuredEvents} onSelectEvent={onSelectEvent} /> : null}
+      {!selectedEventId && view.featuredEvents.length ? <EventCarousel events={view.featuredEvents} onSelectEvent={onSelectEvent} /> : null}
 
-      {events.length ? (
-        <div className={selectedEventId ? 'detail-grid' : 'events-grid'}>
-          {events.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              isDetailView={Boolean(selectedEventId)}
-              priceButtonMode={priceButtonMode}
-              priceFormat={priceFormat}
-              quotesByContractId={quotesByContractId}
-              priceHistory={priceHistory}
-              quotesLoaded={quotesLoaded}
-              onSelectEvent={onSelectEvent}
-            />
-          ))}
-        </div>
+      {view.events.length ? (
+        <ExchangeQuotesProvider
+          priceHistory={view.priceHistory}
+          quotesByContractId={view.quotesByContractId}
+          quotesLoaded={view.quotesLoaded}
+        >
+          <div className={selectedEventId ? 'detail-grid' : 'events-grid'}>
+            {view.events.map((event) => (
+              <EventCard
+                key={`${event.id}-${selectedEventId ? 'detail' : 'list'}`}
+                event={event}
+                isDetailView={Boolean(selectedEventId)}
+                onSelectEvent={onSelectEvent}
+              />
+            ))}
+          </div>
+        </ExchangeQuotesProvider>
       ) : null}
     </section>
   );

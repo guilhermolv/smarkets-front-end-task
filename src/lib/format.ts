@@ -1,4 +1,5 @@
 import type { PriceFormat } from '../types/price';
+import { toAmericanOdds, toBackStakeGbp, toDecimalOdds, toImpliedPercent, toPotGbp } from './price';
 
 export function formatEventType(type: string | null) {
   if (!type) return 'Event';
@@ -36,32 +37,65 @@ export function formatContractList(contracts: Array<{ name: string }>) {
   return remaining > 0 ? `${visibleContracts.join(', ')} +${remaining} more` : visibleContracts.join(', ');
 }
 
-function normalizeDecimalPrice(price: number) {
-  return price >= 100 ? price / 10000 : price;
+export function formatChartTime(timestamp: string | undefined) {
+  if (!timestamp) return 'Latest';
+
+  return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatChartScrubLabel(timestamp: string | undefined) {
+  if (!timestamp) return 'Latest';
+
+  return new Date(timestamp)
+    .toLocaleString(undefined, {
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      month: 'short',
+    })
+    .toUpperCase();
+}
+
+export function toDecimalPrice(price: number) {
+  return toDecimalOdds(price);
+}
+
+function formatGbp(amount: number) {
+  return `£${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function formatPrice(price: number | null, fallback: string, format: PriceFormat = 'decimal') {
   if (price === null) return fallback;
 
-  const decimalPrice = normalizeDecimalPrice(price);
-
   if (format === 'percent') {
-    return `${(100 / decimalPrice).toFixed(2)}%`;
+    const percent = toImpliedPercent(price);
+    return percent === null ? fallback : `${percent.toFixed(2)}%`;
   }
 
   if (format === 'american') {
-    if (decimalPrice >= 2) return `+${Math.round((decimalPrice - 1) * 100)}`;
-    return `${Math.round(-100 / (decimalPrice - 1))}`;
+    const decimalOdds = toDecimalOdds(price);
+    const american = decimalOdds === null ? null : toAmericanOdds(decimalOdds);
+    if (american === null) return fallback;
+    const rounded = Math.round(american);
+    return rounded > 0 ? `+${rounded}` : `${rounded}`;
   }
 
-  return decimalPrice.toFixed(2);
+  const decimalOdds = toDecimalOdds(price);
+  return decimalOdds === null ? fallback : decimalOdds.toFixed(2);
 }
 
 export function formatPercentPrice(price: number) {
   return formatPrice(price, '--', 'percent');
 }
 
-export function formatOrderSize(quantity: number | null) {
+export function formatOrderSize(quantity: number | null, priceBp: number | null = null) {
   if (quantity === null) return '--';
-  return `£${Math.round(quantity).toLocaleString()}`;
+
+  if (priceBp !== null) {
+    const stake = toBackStakeGbp(quantity, priceBp);
+    return stake === null ? '--' : formatGbp(stake);
+  }
+
+  const pot = toPotGbp(quantity);
+  return pot === null ? '--' : formatGbp(pot);
 }

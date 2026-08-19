@@ -1,16 +1,17 @@
 import { useState } from 'react';
+import { useExchangeQuotes } from '../../context/ExchangeQuotesContext';
+import { usePriceDisplay } from '../../context/PriceDisplayContext';
 import { formatOrderSize, formatPrice } from '../../lib/format';
-import type { ContractQuote, ContractSummary } from '../../lib/schemas';
-import type { PriceFormat } from '../../types/price';
+import type { ContractSummary } from '../../lib/schemas';
 import './OrderBook.scss';
 
 type OrderBookProps = {
   contracts: ContractSummary[];
-  priceFormat: PriceFormat;
-  quotesByContractId: Map<string, ContractQuote>;
 };
 
-export function OrderBook({ contracts, priceFormat, quotesByContractId }: OrderBookProps) {
+export function OrderBook({ contracts }: OrderBookProps) {
+  const { priceFormat } = usePriceDisplay();
+  const { quotesByContractId } = useExchangeQuotes();
   const [selectedContractId, setSelectedContractId] = useState(contracts[0]?.id ?? '');
   const [depth, setDepth] = useState(3);
   const selectedContract = contracts.find((contract) => contract.id === selectedContractId) ?? contracts[0];
@@ -40,10 +41,10 @@ export function OrderBook({ contracts, priceFormat, quotesByContractId }: OrderB
 
           return (
             <div className="order-book-row" key={`${selectedContract.id}-${index}`}>
-              <span className="offer-size">{formatOrderSize(offer?.quantity ?? null)}</span>
+              <span className="offer-size">{formatOrderSize(offer?.quantity ?? null, offer?.price ?? null)}</span>
               <span>{offer ? formatPrice(offer.price, '--', priceFormat) : '--'}</span>
               <span>{bid ? formatPrice(bid.price, '--', priceFormat) : '--'}</span>
-              <span className="bid-size">{formatOrderSize(bid?.quantity ?? null)}</span>
+              <span className="bid-size">{formatOrderSize(bid?.quantity ?? null, bid?.price ?? null)}</span>
             </div>
           );
         })}

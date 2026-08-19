@@ -18,12 +18,12 @@ export function LoginForm({ formError, isLoggingIn, onSubmit }: LoginFormProps) 
 
       <label>
         Email
-        <input name="username" type="email" autoComplete="username" placeholder="you@example.com" />
+        <input name="username" type="email" autoComplete="username" placeholder="you@example.com" required />
       </label>
 
       <label>
         Password
-        <input name="password" type="password" autoComplete="current-password" />
+        <input name="password" type="password" autoComplete="current-password" required />
       </label>
 
       {formError ? (

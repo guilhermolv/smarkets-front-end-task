@@ -44,7 +44,7 @@ export function isSmarketsSessionError(error: SmarketsApiError) {
   return error.status === 401 || ['AUTHENTICATION_REQUIRED', 'INVALID_SESSION', 'SESSION_EXPIRED'].includes(error.errorType ?? '');
 }
 
-function errorMessageFor(errorType?: string) {
+export function errorMessageFor(errorType?: string, errorKind: 'auth' | 'data' = 'data') {
   switch (errorType) {
     case 'AUTHENTICATION_REQUIRED':
     case 'INVALID_SESSION':
@@ -68,7 +68,7 @@ function errorMessageFor(errorType?: string) {
     case 'REQUEST_VALIDATION_ERROR':
       return 'Smarkets rejected the request shape. Check the proxy payload mapping for this endpoint.';
     default:
-      return 'Unable to log in to Smarkets right now.';
+      return errorKind === 'auth' ? 'Unable to log in to Smarkets right now.' : 'Unable to load Smarkets data right now.';
   }
 }
 
@@ -97,6 +97,7 @@ type SmarketsRequestOptions<TResponse> = {
   body?: unknown;
   sessionToken?: string;
   schema: z.Schema<TResponse>;
+  errorKind?: 'auth' | 'data';
 };
 
 async function requestSmarkets<TResponse>({
@@ -105,6 +106,7 @@ async function requestSmarkets<TResponse>({
   body,
   sessionToken,
   schema,
+  errorKind = 'data',
 }: SmarketsRequestOptions<TResponse>) {
   const response = await fetch(`${SMARKETS_BASE_URL}${path}`, {
     method,
@@ -125,7 +127,7 @@ async function requestSmarkets<TResponse>({
     const message =
       errorType === 'RATE_LIMIT_EXCEEDED' && retryAfterSeconds
         ? `Smarkets rate limit reached. Wait ${retryAfterSeconds} seconds before trying again.`
-        : errorMessageFor(errorType);
+        : errorMessageFor(errorType, errorKind);
 
     throw new SmarketsApiError(message, response.status, errorType, retryAfterSeconds);
   }
@@ -150,6 +152,7 @@ export async function createSmarketsSession(input: unknown) {
       password: credentials.password,
     },
     schema: smarketsTokenResponseSchema,
+    errorKind: 'auth',
   });
 }
 

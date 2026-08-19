@@ -1,5 +1,11 @@
-import { z } from 'zod';
 import { smarketsClient } from './smarketsClient';
+import {
+  mapContractQuotes,
+  mergeLastExecutedPrices,
+  parseMarketIds,
+  type ContractBook,
+} from './quoteMapping';
+import { z } from 'zod';
 
 const quoteLevelSchema = z.union([
   z.tuple([z.number(), z.number()]),
@@ -36,49 +42,8 @@ function joinIds(ids: string[]) {
   return ids.map(encodeURIComponent).join(',');
 }
 
-function parseMarketIds(input: unknown) {
-  if (typeof input !== 'string') return [];
-
-  return input
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
-
-function readLevelPrice(level: z.infer<typeof quoteLevelSchema>) {
-  if (Array.isArray(level)) return level[0];
-  return level.price;
-}
-
-function readLevelQuantity(level: z.infer<typeof quoteLevelSchema>) {
-  if (Array.isArray(level)) return level[1];
-  return level.quantity ?? null;
-}
-
-function mapLevel(level: z.infer<typeof quoteLevelSchema>) {
-  return {
-    price: readLevelPrice(level),
-    quantity: readLevelQuantity(level),
-  };
-}
-
-function bestBid(levels: Array<z.infer<typeof quoteLevelSchema>>) {
-  if (levels.length === 0) return null;
-  return Math.max(...levels.map(readLevelPrice));
-}
-
-function bestOffer(levels: Array<z.infer<typeof quoteLevelSchema>>) {
-  if (levels.length === 0) return null;
-  return Math.min(...levels.map(readLevelPrice));
-}
-
-function parseLastExecutedPrice(price: string) {
-  const parsed = Number(price);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
-
 export async function fetchMarketQuotes(input: unknown, sessionToken?: string) {
-  const marketIds = parseMarketIds(input).slice(0, 24);
+  const marketIds = parseMarketIds(input);
 
   if (marketIds.length === 0) {
     return { contracts: [], fetchedAt: new Date().toISOString() };
@@ -96,34 +61,12 @@ export async function fetchMarketQuotes(input: unknown, sessionToken?: string) {
       schema: smarketsLastExecutedPricesResponseSchema,
     }),
   ]);
-  const lastExecutedByContractId = new Map(
-    Object.values(lastExecutedResponse.last_executed_prices)
-      .flat()
-      .map((price) => [
-        price.contract_id,
-        {
-          lastTradedPrice: parseLastExecutedPrice(price.last_executed_price),
-          lastTradedAt: price.timestamp,
-        },
-      ]),
-  );
-  const contractIds = new Set([...Object.keys(quotesResponse), ...lastExecutedByContractId.keys()]);
 
   return {
-    contracts: [...contractIds].map((contractId) => {
-      const book = quotesResponse[contractId];
-      const lastExecuted = lastExecutedByContractId.get(contractId);
-
-      return {
-        contractId,
-        bestBackPrice: book ? bestBid(book.bids ?? []) : null,
-        bestLayPrice: book ? bestOffer(book.offers ?? []) : null,
-        bids: book ? [...(book.bids ?? [])].map(mapLevel).sort((left, right) => right.price - left.price) : [],
-        offers: book ? [...(book.offers ?? [])].map(mapLevel).sort((left, right) => left.price - right.price) : [],
-        lastTradedPrice: lastExecuted?.lastTradedPrice ?? null,
-        lastTradedAt: lastExecuted?.lastTradedAt ?? null,
-      };
-    }),
+    contracts: mapContractQuotes(
+      quotesResponse as Record<string, ContractBook | undefined>,
+      mergeLastExecutedPrices(Object.values(lastExecutedResponse.last_executed_prices).flat()),
+    ),
     fetchedAt: new Date().toISOString(),
   };
 }

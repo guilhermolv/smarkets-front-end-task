@@ -16,11 +16,12 @@
 .price-table {
   display: grid;
   gap: 6px;
+  inline-size: 100%;
   min-width: 0;
 
   .detail-card & {
-    flex: 0 0 clamp(430px, 38vw, 620px);
-    max-width: 620px;
+    flex: 0 1 clamp(420px, 34vw, 560px);
+    max-width: 560px;
   }
 }
 
@@ -28,8 +29,9 @@
 .price-header {
   align-items: center;
   display: grid;
-  gap: 6px;
-  grid-template-columns: minmax(82px, 1fr) repeat(var(--price-column-count, 2), minmax(62px, 74px));
+  column-gap: 5px;
+  row-gap: 6px;
+  grid-template-columns: minmax(72px, 1fr) repeat(var(--price-column-count, 2), minmax(92px, max-content));
   min-width: 0;
 }
 
@@ -59,7 +61,8 @@
 
 .detail-card .price-header,
 .detail-card .price-pair {
-  grid-template-columns: minmax(150px, 1fr) repeat(var(--price-column-count, 2), minmax(76px, 96px));
+  column-gap: 5px;
+  grid-template-columns: minmax(104px, 1fr) repeat(var(--price-column-count, 2), minmax(112px, max-content));
 }
 
 .back-price,
@@ -74,9 +77,11 @@
   justify-content: center;
   line-height: 1;
   min-height: 34px;
+  min-width: 0;
   overflow: hidden;
-  padding: 7px 8px;
+  padding: 7px 10px;
   text-align: center;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -105,7 +110,7 @@
 @media (max-width: 640px) {
   .price-header,
   .price-pair {
-    grid-template-columns: minmax(72px, 1fr) repeat(var(--price-column-count, 2), minmax(58px, 1fr));
+    grid-template-columns: minmax(0, 1fr) repeat(var(--price-column-count, 2), minmax(92px, max-content));
   }
 }
 
@@ -118,6 +123,23 @@
   .detail-card .price-header,
   .detail-card .price-pair {
     flex: initial;
+    grid-template-columns: minmax(0, 1fr) repeat(var(--price-column-count, 2), minmax(92px, max-content));
     max-width: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .price-header,
+  .price-pair,
+  .detail-card .price-header,
+  .detail-card .price-pair {
+    grid-template-columns: minmax(0, 1fr) repeat(var(--price-column-count, 2), minmax(78px, 1fr));
+  }
+
+  .back-price,
+  .last-price,
+  .lay-price {
+    font-size: 0.7rem;
+    padding-inline: 6px;
   }
 }

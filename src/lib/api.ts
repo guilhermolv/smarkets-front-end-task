@@ -39,6 +39,7 @@ export class ApiRequestError extends Error {
 export async function apiRequest<TResponse>({ method = 'GET', path, body, schema }: ApiRequestOptions<TResponse>) {
   const response = await fetch(path, {
     method,
+    credentials: 'include',
     headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   });

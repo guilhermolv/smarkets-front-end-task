@@ -77,11 +77,15 @@ app.post('/api/session', async (request, response, next) => {
       return;
     }
 
-    createLocalSession(response, {
-      token: session.token,
-      expiresAt: session.stop,
-      status: needsVerification ? 'pending_verification' : 'authenticated',
-    });
+    createLocalSession(
+      response,
+      {
+        token: session.token,
+        expiresAt: session.stop,
+        status: needsVerification ? 'pending_verification' : 'authenticated',
+      },
+      getSessionIdFromCookieHeader(request.headers.cookie),
+    );
 
     response.status(201).json({
       status: needsVerification ? 'verification_required' : 'authenticated',

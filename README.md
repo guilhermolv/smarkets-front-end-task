@@ -19,7 +19,7 @@ The proxy is deliberately small. It has no database, user model, or persistence 
 - Express for the backend-for-frontend proxy.
 - React Query for remote state, loading/error states, and later quote polling.
 - Zod for validating API responses at the app boundary.
-- Vitest and Testing Library for focused UI and utility tests.
+- Vitest, Testing Library, ESLint and Prettier for focused tests and consistent style.
 
 ## Running Locally
 
@@ -95,14 +95,16 @@ The detail view reuses the same UI models as the homepage, but it does not apply
 
 The public Smarkets API exposes prices through HTTP endpoints rather than a documented WebSocket subscription endpoint. The app therefore uses React Query polling for visible markets.
 
-The proxy batches visible market IDs into:
+Smarkets prices are percentage basis points, not decimal odds. The OpenAPI example is `5000 = 50%` implied probability; decimal odds are `10000 / price` (`10000 / 5000 = 2.00`). Order-book quantity is `1/100` of a UK penny; back stake in GBP is `quantity * price / 100000000`. Display conversion lives in `src/lib/price.ts` so percent, decimal and American formats share one source of truth.
+
+The proxy batches visible market IDs (up to 72, covering the homepage 24 events × 3 markets) into:
 
 1. `GET /v3/markets/{market_ids}/quotes/` for current bid and ask books.
 2. `GET /v3/markets/{market_ids}/last_executed_prices/` for a fallback last-traded price.
 
-The UI shows `--` when Smarkets returns no value for a bid, ask or last-traded price. Empty cells are expected for markets without current liquidity.
+The UI shows `--` when Smarkets returns no value for a bid, ask or last-traded price. Empty cells are expected for markets without current liquidity. Category is kept on the query string (`/?category=football`) so a refresh does not drop the selected sport. Price buttons are labelled Buy and Sell for scanability: Buy is the best back price (bids) and Sell is the best lay price (offers).
 
-The small trend chart is built from prices observed while the app is open. It is not a claim to have official historical odds data; it is a UI enhancement on top of the public polling endpoints. I avoided using Smarkets website GraphQL calls because the provided task API is the documented OpenAPI/REST surface, and depending on an undocumented internal website API would be brittle.
+The small trend chart is built from prices observed while the app is open, plotted on a shared timestamp axis. It is not a claim to have official historical odds data; it is a UI enhancement on top of the public polling endpoints. I avoided using Smarkets website GraphQL calls because the provided task API is the documented OpenAPI/REST surface, and depending on an undocumented internal website API would be brittle.
 
 ## Smarkets API Notes
 
@@ -125,7 +127,8 @@ The small trend chart is built from prices observed while the app is open. It is
 
 ```bash
 npm test
+npm run lint
 npm run build
 ```
 
-The tests focus on code owned by this project: response schemas, display formatting, and category filtering. They avoid live Smarkets calls so the suite remains deterministic and does not consume login or rate-limit budget.
+The tests focus on code owned by this project: response schemas, OpenAPI price conversion, quote mapping, display formatting, and category filtering. They avoid live Smarkets calls so the suite remains deterministic and does not consume login or rate-limit budget.

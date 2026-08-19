@@ -1,37 +1,41 @@
+import { useExchangeQuotes } from '../../context/ExchangeQuotesContext';
 import { formatContractList, formatState } from '../../lib/format';
 import { readDisplayPrice } from '../../lib/quotes';
-import type { ContractQuote, MarketSummary } from '../../lib/schemas';
-import type { PriceButtonMode, PriceFormat, PriceHistory } from '../../types/price';
+import type { MarketSummary } from '../../lib/schemas';
 import { PriceTable } from '../PriceTable';
 import './MarketRow.scss';
 
 type MarketRowProps = {
   market: MarketSummary;
   isDetailView: boolean;
-  priceButtonMode: PriceButtonMode;
-  priceFormat: PriceFormat;
-  quotesByContractId: Map<string, ContractQuote>;
-  priceHistory: PriceHistory;
   onSelectEvent?: () => void;
 };
 
-export function MarketRow({ market, isDetailView, priceButtonMode, priceFormat, quotesByContractId, priceHistory, onSelectEvent }: MarketRowProps) {
+export function MarketRow({ market, isDetailView, onSelectEvent }: MarketRowProps) {
+  const { quotesByContractId } = useExchangeQuotes();
   const visibleContracts = market.contracts.slice(0, 3);
   const hasVisiblePrice = visibleContracts.some((contract) => readDisplayPrice(quotesByContractId.get(contract.id)) !== null);
 
   return (
     <div
-      className={isDetailView ? 'market-row market-row-static' : 'market-row market-row-interactive'}
-      role={isDetailView ? undefined : 'button'}
-      tabIndex={isDetailView ? undefined : 0}
-      onClick={isDetailView ? undefined : onSelectEvent}
+      className={isDetailView || !onSelectEvent ? 'market-row market-row-static' : 'market-row market-row-interactive'}
+      role={isDetailView || !onSelectEvent ? undefined : 'button'}
+      tabIndex={isDetailView || !onSelectEvent ? undefined : 0}
+      onClick={
+        isDetailView || !onSelectEvent
+          ? undefined
+          : (clickEvent) => {
+              clickEvent.stopPropagation();
+              onSelectEvent();
+            }
+      }
       onKeyDown={
-        isDetailView
+        isDetailView || !onSelectEvent
           ? undefined
           : (keyboardEvent) => {
               if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
                 keyboardEvent.preventDefault();
-                onSelectEvent?.();
+                onSelectEvent();
               }
             }
       }
@@ -41,14 +45,7 @@ export function MarketRow({ market, isDetailView, priceButtonMode, priceFormat, 
         <span>{formatContractList(market.contracts)}</span>
         {market.contracts.length > 0 ? (
           hasVisiblePrice ? (
-            <PriceTable
-              contracts={visibleContracts}
-              isDetailView={isDetailView}
-              priceButtonMode={priceButtonMode}
-              priceFormat={priceFormat}
-              priceHistory={priceHistory}
-              quotesByContractId={quotesByContractId}
-            />
+            <PriceTable contracts={visibleContracts} isDetailView={isDetailView} />
           ) : (
             <p className="price-unavailable">No live prices available for the visible selections.</p>
           )

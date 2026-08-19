@@ -28,7 +28,9 @@ function isExpired(expiresAt: string | null) {
   return expiry !== null && expiry <= Date.now();
 }
 
-export function createLocalSession(response: Response, session: StoredSession) {
+export function createLocalSession(response: Response, session: StoredSession, previousSessionId?: string) {
+  if (previousSessionId) sessions.delete(previousSessionId);
+
   const sessionId = crypto.randomUUID();
   sessions.set(sessionId, session);
 

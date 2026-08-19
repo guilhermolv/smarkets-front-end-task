@@ -12,7 +12,7 @@ export function Notice({ children, className, error, role }: NoticeProps) {
   const classes = ['notice', error ? 'error' : null, className].filter(Boolean).join(' ');
 
   return (
-    <p className={classes} role={role}>
+    <p className={classes} role={role ?? (error ? 'alert' : undefined)}>
       {children}
     </p>
   );

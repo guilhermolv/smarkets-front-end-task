@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { formatContractList, formatDateTime, formatEventType, formatOrderSize, formatPercentPrice, formatPrice, formatState } from './format';
+import {
+  formatChartScrubLabel,
+  formatChartTime,
+  formatContractList,
+  formatDateTime,
+  formatEventType,
+  formatOrderSize,
+  formatPercentPrice,
+  formatPrice,
+  formatState,
+} from './format';
 
 describe('format helpers', () => {
   it('formats Smarkets machine names for display', () => {
@@ -16,18 +26,25 @@ describe('format helpers', () => {
     expect(formatDateTime(null)).toBe('TBC');
   });
 
-  it('formats missing and scaled prices', () => {
+  it('formats chart axis times', () => {
+    expect(formatChartTime(undefined)).toBe('Latest');
+    expect(formatChartTime('2026-08-15T09:02:00Z')).toMatch(/\d{1,2}:\d{2}/);
+    expect(formatChartScrubLabel('2026-08-15T09:02:00Z')).toMatch(/AUG/i);
+  });
+
+  it('formats OpenAPI basis-point prices', () => {
     expect(formatPrice(null, '--')).toBe('--');
-    expect(formatPrice(25000, '--')).toBe('2.50');
-    expect(formatPrice(2.5, '--')).toBe('2.50');
-    expect(formatPrice(2.5, '--', 'percent')).toBe('40.00%');
-    expect(formatPrice(1.5, '--', 'american')).toBe('-200');
-    expect(formatPrice(2.5, '--', 'american')).toBe('+150');
+    expect(formatPrice(5000, '--')).toBe('2.00');
+    expect(formatPrice(4000, '--')).toBe('2.50');
+    expect(formatPrice(4000, '--', 'percent')).toBe('40.00%');
+    expect(formatPrice(4000, '--', 'american')).toBe('+150');
+    expect(formatPrice(6667, '--', 'american')).toBe('-200');
   });
 
   it('formats percent prices and order sizes for market insight views', () => {
-    expect(formatPercentPrice(2.5)).toBe('40.00%');
+    expect(formatPercentPrice(4000)).toBe('40.00%');
     expect(formatOrderSize(null)).toBe('--');
-    expect(formatOrderSize(12)).toBe('£12');
+    expect(formatOrderSize(100000, 5000)).toBe('£5.00');
+    expect(formatOrderSize(500)).toBe('£0.05');
   });
 });

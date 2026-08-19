@@ -10,6 +10,36 @@
   }
 }
 
+.insight-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.insight-disclosure {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  min-height: 34px;
+  padding: 0 14px;
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: none;
+  }
+}
+
+.insight-disclosure-open {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .insight-toggle {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -17,7 +47,6 @@
   display: inline-flex;
   flex-wrap: nowrap;
   gap: 3px;
-  justify-self: end;
   padding: 4px;
 
   button {

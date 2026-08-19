@@ -56,6 +56,10 @@ const eventCategories = {
   politics: ['/politics/', 'politics_'],
 } as const;
 
+const featuredEventRequestLimit = 100;
+const featuredEventLimit = 24;
+const featuredMarketLimit = 3;
+
 export type EventCategory = keyof typeof eventCategories;
 
 function joinIds(ids: string[]) {
@@ -67,11 +71,19 @@ function displayName(...values: Array<string | null | undefined>) {
 }
 
 function groupBy<TItem>(items: TItem[], getKey: (item: TItem) => string) {
-  return items.reduce<Map<string, TItem[]>>((groups, item) => {
+  const groups = new Map<string, TItem[]>();
+
+  for (const item of items) {
     const key = getKey(item);
-    groups.set(key, [...(groups.get(key) ?? []), item]);
-    return groups;
-  }, new Map());
+    const group = groups.get(key);
+    if (group) {
+      group.push(item);
+    } else {
+      groups.set(key, [item]);
+    }
+  }
+
+  return groups;
 }
 
 function mapEventSummary(
@@ -115,12 +127,12 @@ export async function fetchFeaturedEvents(sessionToken?: string, categoryInput?:
   const category = parseEventCategory(categoryInput);
   const startDateTimeMin = encodeURIComponent(new Date().toISOString());
   const eventResponse = await smarketsClient.request({
-    path: `/v3/events/?state=upcoming&limit=50&sort=start_datetime,id&start_datetime_min=${startDateTimeMin}`,
+    path: `/v3/events/?state=upcoming&limit=${featuredEventRequestLimit}&sort=start_datetime,id&start_datetime_min=${startDateTimeMin}`,
     sessionToken,
     schema: smarketsEventsResponseSchema,
   });
 
-  const events = eventResponse.events.filter((event) => matchesCategory(event, category)).slice(0, 24);
+  const events = eventResponse.events.filter((event) => matchesCategory(event, category)).slice(0, featuredEventLimit);
   const eventIds = events.map((event) => event.id);
 
   if (eventIds.length === 0) {
@@ -134,8 +146,7 @@ export async function fetchFeaturedEvents(sessionToken?: string, categoryInput?:
   });
 
   const marketsByEventId = groupBy(marketsResponse.markets, (market) => market.event_id);
-  const visibleMarkets = marketsResponse.markets.slice(0, 24);
-  const marketIds = visibleMarkets.map((market) => market.id);
+  const marketIds = events.flatMap((event) => (marketsByEventId.get(event.id) ?? []).slice(0, featuredMarketLimit).map((market) => market.id));
   const contractsResponse =
     marketIds.length > 0
       ? await smarketsClient.request({
@@ -147,9 +158,8 @@ export async function fetchFeaturedEvents(sessionToken?: string, categoryInput?:
   const contractsByMarketId = groupBy(contractsResponse.contracts, (contract) => contract.market_id);
 
   const summaries: EventSummary[] = events
-    .map((event) => mapEventSummary(event, marketsByEventId.get(event.id) ?? [], contractsByMarketId, 3))
-    .filter((event) => event.markets.length > 0)
-    .slice(0, 12);
+    .map((event) => mapEventSummary(event, marketsByEventId.get(event.id) ?? [], contractsByMarketId, featuredMarketLimit))
+    .filter((event) => event.markets.length > 0);
 
   return {
     events: summaries,
