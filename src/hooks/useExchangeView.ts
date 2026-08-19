@@ -1,10 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchEventDetail, fetchFeaturedEvents, fetchMarketQuotes } from '../lib/api';
-import { demoChartFixture, isDemoEventId, isDemoMarketId } from '../lib/demoChartEvent';
 import { queryKeys } from '../lib/queryKeys';
+import type { EventSummary } from '../lib/schemas';
 import { isAuthenticationError } from '../lib/session';
 import { usePriceHistory } from './usePriceHistory';
+
+const emptyEvents: EventSummary[] = [];
 
 type UseExchangeViewOptions = {
   isAuthenticated: boolean;
@@ -22,20 +24,16 @@ export function useExchangeView({ isAuthenticated, selectedCategory, selectedEve
   const eventDetailQuery = useQuery({
     queryKey: queryKeys.eventDetail(selectedEventId ?? ''),
     queryFn: () => fetchEventDetail(selectedEventId ?? ''),
-    enabled: isAuthenticated && selectedEventId !== null && !isDemoEventId(selectedEventId),
+    enabled: isAuthenticated && selectedEventId !== null,
   });
-  const featuredEvents = useMemo(() => [demoChartFixture.event, ...(eventsQuery.data?.events ?? [])], [eventsQuery.data]);
-  const visibleEvents = useMemo(() => {
-    if (isDemoEventId(selectedEventId)) return [demoChartFixture.event];
-    if (eventDetailQuery.data?.event) return [eventDetailQuery.data.event];
-    return featuredEvents;
-  }, [eventDetailQuery.data, featuredEvents, selectedEventId]);
+  const featuredEvents = eventsQuery.data?.events ?? emptyEvents;
+  const eventDetail = eventDetailQuery.data;
+  const visibleEvents = useMemo(
+    () => (eventDetail?.event ? [eventDetail.event] : featuredEvents),
+    [eventDetail, featuredEvents],
+  );
   const visibleMarketIds = useMemo(
-    () => [
-      ...new Set(
-        visibleEvents.flatMap((event) => event.markets.map((market) => market.id)).filter((marketId) => !isDemoMarketId(marketId)),
-      ),
-    ],
+    () => [...new Set(visibleEvents.flatMap((event) => event.markets.map((market) => market.id)))],
     [visibleEvents],
   );
   const quotesQuery = useQuery({
@@ -44,21 +42,11 @@ export function useExchangeView({ isAuthenticated, selectedCategory, selectedEve
     enabled: isAuthenticated && visibleMarketIds.length > 0,
     refetchInterval: 5000,
   });
-  const quotesByContractId = useMemo(() => {
-    const quotes = new Map(quotesQuery.data?.contracts.map((quote) => [quote.contractId, quote]) ?? []);
-    for (const quote of demoChartFixture.quotes) {
-      quotes.set(quote.contractId, quote);
-    }
-    return quotes;
-  }, [quotesQuery.data]);
-  const livePriceHistory = usePriceHistory(quotesQuery.data);
-  const priceHistory = useMemo(
-    () => ({
-      ...livePriceHistory,
-      ...demoChartFixture.history,
-    }),
-    [livePriceHistory],
+  const quotesByContractId = useMemo(
+    () => new Map(quotesQuery.data?.contracts.map((quote) => [quote.contractId, quote]) ?? []),
+    [quotesQuery.data],
   );
+  const priceHistory = usePriceHistory(quotesQuery.data);
 
   useEffect(() => {
     const sessionError = [eventsQuery.error, eventDetailQuery.error, quotesQuery.error].find(isAuthenticationError);
@@ -74,12 +62,12 @@ export function useExchangeView({ isAuthenticated, selectedCategory, selectedEve
     eventsError: eventsQuery.isError ? eventsQuery.error.message : undefined,
     eventsFetchedAt: eventsQuery.data?.fetchedAt,
     featuredEvents,
-    isLoadingDetail: eventDetailQuery.isLoading && !isDemoEventId(selectedEventId),
+    isLoadingDetail: eventDetailQuery.isLoading,
     isLoadingEvents: eventsQuery.isLoading,
     priceHistory,
     quotesByContractId,
     quotesError: quotesQuery.isError ? quotesQuery.error.message : undefined,
     quotesFetchedAt: quotesQuery.data?.fetchedAt,
-    quotesLoaded: Boolean(quotesQuery.data) || visibleEvents.some((event) => isDemoEventId(event.id)),
+    quotesLoaded: Boolean(quotesQuery.data),
   };
 }

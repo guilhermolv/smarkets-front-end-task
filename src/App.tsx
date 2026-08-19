@@ -20,18 +20,29 @@ export function App() {
   return (
     <PriceDisplayProvider>
       <AppShell theme={theme}>
-        <TopBar healthStatus={healthQuery.data?.status} theme={theme} onToggleTheme={toggleTheme} />
-
-        {healthQuery.isError ? <Notice error className="shell-notice">Proxy unavailable. Start the dev server with npm run dev.</Notice> : null}
-
-        <AuthSection
-          activeSession={auth.activeSession}
-          formError={auth.formError}
-          isLoggingIn={auth.isLoggingIn}
+        <TopBar
+          healthStatus={healthQuery.data?.status}
           isLoggingOut={auth.isLoggingOut}
-          onLogin={auth.handleLogin}
+          showLogout={Boolean(auth.activeSession)}
+          theme={theme}
           onLogout={auth.logout}
+          onToggleTheme={toggleTheme}
         />
+
+        {healthQuery.isError ? (
+          <Notice error className="shell-notice">
+            Proxy unavailable. Start the dev server with npm run dev.
+          </Notice>
+        ) : null}
+
+        {auth.isAuthenticated ? null : (
+          <AuthSection
+            formError={auth.formError}
+            isLoggingIn={auth.isLoggingIn}
+            verificationRequired={auth.activeSession?.status === 'verification_required'}
+            onLogin={auth.handleLogin}
+          />
+        )}
 
         <EventsPanel
           isAuthenticated={auth.isAuthenticated}

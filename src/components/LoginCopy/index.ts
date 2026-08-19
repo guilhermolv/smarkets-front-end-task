@@ -1,1 +1,0 @@
-export { LoginCopy } from './LoginCopy';

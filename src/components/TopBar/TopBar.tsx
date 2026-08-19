@@ -6,11 +6,14 @@ import './TopBar.scss';
 
 type TopBarProps = {
   healthStatus?: string;
+  isLoggingOut: boolean;
+  showLogout: boolean;
   theme: Theme;
+  onLogout: () => void;
   onToggleTheme: () => void;
 };
 
-export function TopBar({ healthStatus, theme, onToggleTheme }: TopBarProps) {
+export function TopBar({ healthStatus, isLoggingOut, showLogout, theme, onLogout, onToggleTheme }: TopBarProps) {
   const { priceButtonMode, priceFormat, setPriceButtonMode, setPriceFormat } = usePriceDisplay();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<'price-format' | 'price-buttons' | null>(null);
@@ -70,6 +73,11 @@ export function TopBar({ healthStatus, theme, onToggleTheme }: TopBarProps) {
       </div>
       <div className="top-actions">
         <span className={healthStatus === 'ok' ? 'status status-ok' : 'status'}>{healthStatus ?? 'checking'}</span>
+        {showLogout ? (
+          <button className="secondary-button top-bar-logout" type="button" disabled={isLoggingOut} onClick={onLogout}>
+            {isLoggingOut ? 'Logging out...' : 'Log out'}
+          </button>
+        ) : null}
         <div className="settings-menu" ref={settingsMenuRef}>
           <button
             aria-controls="settings-panel"

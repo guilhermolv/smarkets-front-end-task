@@ -7,10 +7,12 @@ export const plotLayout = {
   plotStartX: 3,
   axisX: 98.5,
   plotEndX: 82,
+  yAxisStartX: 88,
   plotTopY: 8,
   plotBottomY: 86,
   yAxisTickCount: 6,
   domainPaddingRatio: 0.08,
+  minTrackLabelWidth: 20,
 };
 
 export const plotWidth = plotLayout.plotEndX - plotLayout.plotStartX;
@@ -128,8 +130,8 @@ export function stepHoverX(hoverX: number | null, timestampCount: number, delta:
   return xForIndex(nextIndex, timestampCount);
 }
 
-export function trackLabelsOnLeft(sampledX: number) {
-  return sampledX > plotLayout.plotEndX - 24;
+export function trackLabelsFitOnRight(sampledX: number) {
+  return sampledX + plotLayout.minTrackLabelWidth <= plotLayout.yAxisStartX;
 }
 
 export function placeTrackLabels<T extends { y: number }>(items: T[]) {

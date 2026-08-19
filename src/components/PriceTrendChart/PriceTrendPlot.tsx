@@ -1,6 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { formatChartScrubLabel, formatChartTime } from '../../lib/format';
-import { plotLayout, trackLabelsOnLeft } from '../../lib/priceTrend';
+import { plotLayout, trackLabelsFitOnRight } from '../../lib/priceTrend';
 import type { PricePoint } from '../../types/price';
 
 type PlotSeries = {
@@ -81,7 +81,7 @@ export function PriceTrendPlot({
 
   const markerRx = (markerPx * 100) / viewSize.width;
   const markerRy = (markerPx * plotLayout.plotHeight) / viewSize.height;
-  const labelsOnLeft = trackLabelsOnLeft(sampledX);
+  const labelsFitOnRight = trackLabelsFitOnRight(sampledX);
   const pastClipId = `${clipId}-past`;
   const futureClipId = `${clipId}-future`;
 
@@ -137,7 +137,7 @@ export function PriceTrendPlot({
             className="price-trend-grid-line"
             key={`grid-${tick.y}`}
             x1={plotLayout.plotStartX}
-            x2={plotLayout.plotEndX}
+            x2={plotLayout.axisX}
             y1={tick.y}
             y2={tick.y}
           />
@@ -187,7 +187,7 @@ export function PriceTrendPlot({
           </span>
           {trackLabels.map((label) => (
             <span
-              className={labelsOnLeft ? 'price-trend-track-label price-trend-track-label-left' : 'price-trend-track-label'}
+              className={labelsFitOnRight ? 'price-trend-track-label' : 'price-trend-track-label price-trend-track-label-left'}
               key={label.id}
               style={{ color: label.colour, left: `${sampledX}%`, top: `${(label.y / plotLayout.plotHeight) * 100}%` }}
             >

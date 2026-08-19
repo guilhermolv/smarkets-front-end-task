@@ -29,7 +29,7 @@
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-width: 0.55;
+    stroke-width: 0.44;
   }
 
   ellipse {
@@ -116,15 +116,18 @@
   pointer-events: none;
   position: absolute;
   inset: 0;
+  z-index: 3;
 
   span {
     color: var(--muted);
     font-size: 0.68rem;
     font-variant-numeric: tabular-nums;
     font-weight: 800;
+    padding-right: 8px;
     position: absolute;
-    right: 8px;
+    right: 0;
     transform: translateY(-50%);
+    white-space: nowrap;
   }
 }
 
@@ -164,16 +167,23 @@
 }
 
 .price-trend-track-label {
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  border-radius: 4px;
   font-size: 0.62rem;
   font-weight: 800;
   max-width: 10.5rem;
   overflow: hidden;
+  padding: 1px 6px;
   pointer-events: none;
   position: absolute;
   text-overflow: ellipsis;
-  text-shadow: 0 0 8px var(--panel);
   transform: translate(8px, -50%);
   white-space: nowrap;
+  z-index: 4;
+}
+
+.price-trend-track-label-left {
+  transform: translate(calc(-100% - 8px), -50%);
 }
 
 .price-trend-pending {

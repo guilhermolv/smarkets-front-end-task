@@ -61,7 +61,7 @@ export function EventsPanel({
       {!selectedEventId ? <CategoryTabs selectedCategory={selectedCategory} onSelectCategory={onSelectCategory} /> : null}
 
       {!isAuthenticated ? (
-        <Notice>Log in to load Smarkets events through the proxy. A local chart stress event is available without login.</Notice>
+        <Notice>Log in to load Smarkets events through the proxy.</Notice>
       ) : null}
       {view.isLoadingEvents && !selectedEventId ? <Notice>Loading events from Smarkets...</Notice> : null}
       {view.isLoadingDetail ? <Notice>Loading event markets from Smarkets...</Notice> : null}
